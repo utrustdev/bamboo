@@ -40,7 +40,7 @@ defmodule Bamboo.SendGridAdapter do
     body = email |> to_sendgrid_body(config) |> Bamboo.json_library().encode!()
     url = [base_uri(), @send_message_path]
 
-    case :hackney.post(url, headers(api_key), body, [:with_body]) do
+    case :hackney.post(url, headers(api_key), body, [:with_body, recv_timeout: 15_000]) do
       {:ok, status, _headers, response} when status > 299 ->
         filtered_params = body |> Bamboo.json_library().decode!() |> Map.put("key", "[FILTERED]")
         raise_api_error(@service_name, response, filtered_params)
